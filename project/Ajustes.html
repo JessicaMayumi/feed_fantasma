@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ajustes · Feed Fantasma</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Grand+Hotel&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-main">
+      <a class="brand" href="Feed Fantasma.html">
+        <span class="ghost">👻</span>
+        <span class="word">Feed Fantasma</span>
+      </a>
+      <div class="top-actions">
+        <a class="tbtn primary" href="Feed Fantasma.html"><span class="tbtn-ico">←</span> Voltar ao feed</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="settings-wrap">
+    <div class="settings-head">
+      <h1>⚙ Ajustes da demonstração</h1>
+    </div>
+    <p class="settings-lead">Calibre os parâmetros antes da aula. As mudanças são salvas na hora e aplicadas no feed assim que você voltar. Não afeta o estado atual dos posts (use “Resetar feed” lá pra reiniciar).</p>
+
+    <div class="setting">
+      <div class="s-top">
+        <label for="likes">Likes para o selo “em alta”</label>
+        <span class="s-val" id="likes-val">500</span>
+      </div>
+      <p class="s-desc">A partir de quantas curtidas um post ganha o selo ▲ em alta. Mais baixo = polêmica vira “alta” mais rápido.</p>
+      <input type="range" id="likes" min="50" max="2000" step="50" />
+    </div>
+
+    <div class="setting">
+      <div class="s-top">
+        <label for="denuncias">Denúncias para a ordem judicial</label>
+        <span class="s-val" id="denuncias-val">3</span>
+      </div>
+      <p class="s-desc">Quantas denúncias acionam a lei. Em conteúdo ilegal dispara ordem + multa; em conteúdo legal, nada é removido.</p>
+      <input type="range" id="denuncias" min="1" max="10" step="1" />
+    </div>
+
+    <div class="setting">
+      <div class="s-top">
+        <label for="multa">Valor da multa por ordem</label>
+      </div>
+      <p class="s-desc">Quanto cada ordem judicial soma ao contador de multas no topo do feed.</p>
+      <input type="number" id="multa" min="0" step="500" /> <span style="color:var(--text-dim);font-size:.85rem;">reais</span>
+    </div>
+
+    <div class="setting">
+      <div class="s-top">
+        <label for="flip">Velocidade da reordenação</label>
+        <span class="s-val" id="flip-val">0,55 s</span>
+      </div>
+      <p class="s-desc">Duração da animação quando os posts mudam de posição. Mais lento = mais dramático na projeção.</p>
+      <input type="range" id="flip" min="0.2" max="1.2" step="0.05" />
+    </div>
+
+    <div class="setting">
+      <div class="toggle-row">
+        <div>
+          <label for="presentation">Modo apresentação (texto maior)</label>
+          <p class="s-desc" style="margin-bottom:0;">Aumenta o tamanho da fonte para leitura à distância.</p>
+        </div>
+        <span class="switch"><input type="checkbox" id="presentation" /><span class="slider"></span></span>
+      </div>
+    </div>
+
+    <div class="setting">
+      <div class="toggle-row">
+        <div>
+          <label for="reveal">Revelar classificação (legal / ilegal)</label>
+          <p class="s-desc" style="margin-bottom:0;">Mostra uma etiqueta LEGAL/ILEGAL em cada post — útil pra você ou pra revelar à turma o “gabarito”.</p>
+        </div>
+        <span class="switch"><input type="checkbox" id="reveal" /><span class="slider"></span></span>
+      </div>
+    </div>
+
+    <div class="settings-actions">
+      <a class="tbtn primary" href="Feed Fantasma.html">← Voltar ao feed</a>
+      <button class="tbtn" id="restore">Restaurar padrões</button>
+      <span class="saved-flash" id="flash">✓ salvo</span>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script>
+    const CONFIG_KEY = "feedFantasma.config.v1";
+    function load() {
+      try { return { ...window.DEFAULT_CONFIG, ...JSON.parse(localStorage.getItem(CONFIG_KEY) || "{}") }; }
+      catch (e) { return { ...window.DEFAULT_CONFIG }; }
+    }
+    let cfg = load();
+
+    const els = {
+      likes: document.getElementById("likes"),
+      denuncias: document.getElementById("denuncias"),
+      multa: document.getElementById("multa"),
+      flip: document.getElementById("flip"),
+      presentation: document.getElementById("presentation"),
+      reveal: document.getElementById("reveal")
+    };
+    const flash = document.getElementById("flash");
+
+    function render() {
+      els.likes.value = cfg.likesEmAlta;
+      document.getElementById("likes-val").textContent = (+cfg.likesEmAlta).toLocaleString("pt-BR");
+      els.denuncias.value = cfg.denunciasOrdem;
+      document.getElementById("denuncias-val").textContent = cfg.denunciasOrdem;
+      els.multa.value = cfg.valorMulta;
+      els.flip.value = cfg.flipDur;
+      document.getElementById("flip-val").textContent = (+cfg.flipDur).toFixed(2).replace(".", ",") + " s";
+      els.presentation.checked = !!cfg.presentation;
+      els.reveal.checked = !!cfg.revealFlags;
+    }
+
+    let flashTimer;
+    function save() {
+      localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
+      flash.classList.add("show");
+      clearTimeout(flashTimer);
+      flashTimer = setTimeout(() => flash.classList.remove("show"), 1200);
+    }
+
+    els.likes.addEventListener("input", () => { cfg.likesEmAlta = +els.likes.value; render(); save(); });
+    els.denuncias.addEventListener("input", () => { cfg.denunciasOrdem = +els.denuncias.value; render(); save(); });
+    els.multa.addEventListener("input", () => { cfg.valorMulta = Math.max(0, +els.multa.value || 0); save(); });
+    els.flip.addEventListener("input", () => { cfg.flipDur = +els.flip.value; render(); save(); });
+    els.presentation.addEventListener("change", () => { cfg.presentation = els.presentation.checked; save(); });
+    els.reveal.addEventListener("change", () => { cfg.revealFlags = els.reveal.checked; save(); });
+
+    document.getElementById("restore").addEventListener("click", () => {
+      cfg = { ...window.DEFAULT_CONFIG };
+      render(); save();
+    });
+
+    render();
+  </script>
+</body>
+</html>
