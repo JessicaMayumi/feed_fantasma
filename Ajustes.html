@@ -13,41 +13,46 @@
   <header class="topbar">
     <div class="topbar-main">
       <a class="brand" href="Feed Fantasma.html">
-        <span class="ghost">
-          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 20V10a7 7 0 0 1 14 0v10l-2.3-1.6L14.4 20 12 18.4 9.6 20 7.3 18.4 5 20z"/>
-            <circle cx="9.3" cy="10.5" r="1.1" fill="currentColor" stroke="none"/>
-            <circle cx="14.7" cy="10.5" r="1.1" fill="currentColor" stroke="none"/>
-          </svg>
-        </span>
+        <span class="ghost">👻</span>
         <span class="word">Feed Fantasma</span>
       </a>
       <div class="top-actions">
-        <a class="tbtn primary" href="Feed Fantasma.html">
-          <span class="tbtn-ico">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
-            </svg>
-          </span>
-          Voltar ao feed
-        </a>
+        <a class="tbtn primary" href="Feed Fantasma.html"><span class="tbtn-ico">←</span> Voltar ao feed</a>
       </div>
     </div>
   </header>
 
   <div class="settings-wrap">
     <div class="settings-head">
-      <h1>Ajustes da demonstração</h1>
+      <h1>⚙ Ajustes da demonstração</h1>
     </div>
-    <p class="settings-lead">Calibre os parâmetros antes da aula. As mudanças são salvas na hora e aplicadas no feed assim que você voltar. Não afeta o estado atual dos posts (use "Resetar feed" lá pra reiniciar).</p>
+    <p class="settings-lead">Calibre os parâmetros antes da aula. As mudanças são salvas na hora e aplicadas no feed assim que você voltar. Não afeta o estado atual dos posts (use “Resetar feed” lá pra reiniciar).</p>
 
     <div class="setting">
       <div class="s-top">
-        <label for="likes">Likes para o selo "em alta"</label>
-        <span class="s-val" id="likes-val">500</span>
+        <label for="likes">Curtidas para viralizar</label>
+        <span class="s-val" id="likes-val">5.000</span>
       </div>
-      <p class="s-desc">A partir de quantas curtidas um post ganha o selo ▲ em alta. Mais baixo = polêmica vira "alta" mais rápido.</p>
-      <input type="range" id="likes" min="50" max="2000" step="50" />
+      <p class="s-desc">Passando deste número de curtidas (em menos de 24h), a plataforma impulsiona o post por engajamento — não importa o conteúdo.</p>
+      <input type="range" id="likes" min="1000" max="20000" step="500" />
+    </div>
+
+    <div class="setting">
+      <div class="s-top">
+        <label for="shares">Compartilhamentos para viralizar</label>
+        <span class="s-val" id="shares-val">2.000</span>
+      </div>
+      <p class="s-desc">Mesmo efeito, pelo caminho dos compartilhamentos — compartilhar espalha mais rápido, então o limiar é menor.</p>
+      <input type="range" id="shares" min="500" max="10000" step="500" />
+    </div>
+
+    <div class="setting">
+      <div class="s-top">
+        <label for="passo">Engajamento por clique</label>
+        <span class="s-val" id="passo-val">1.000</span>
+      </div>
+      <p class="s-desc">Quanto cada clique em curtir/compartilhar adiciona — simula a velocidade da viralização na demonstração.</p>
+      <input type="range" id="passo" min="100" max="5000" step="100" />
     </div>
 
     <div class="setting">
@@ -90,7 +95,7 @@
       <div class="toggle-row">
         <div>
           <label for="reveal">Revelar classificação (legal / ilegal)</label>
-          <p class="s-desc" style="margin-bottom:0;">Mostra uma etiqueta LEGAL/ILEGAL em cada post — útil pra você ou pra revelar à turma o "gabarito".</p>
+          <p class="s-desc" style="margin-bottom:0;">Mostra uma etiqueta LEGAL/ILEGAL em cada post — útil pra você ou pra revelar à turma o “gabarito”.</p>
         </div>
         <span class="switch"><input type="checkbox" id="reveal" /><span class="slider"></span></span>
       </div>
@@ -114,6 +119,8 @@
 
     const els = {
       likes: document.getElementById("likes"),
+      shares: document.getElementById("shares"),
+      passo: document.getElementById("passo"),
       denuncias: document.getElementById("denuncias"),
       multa: document.getElementById("multa"),
       flip: document.getElementById("flip"),
@@ -125,6 +132,10 @@
     function render() {
       els.likes.value = cfg.likesEmAlta;
       document.getElementById("likes-val").textContent = (+cfg.likesEmAlta).toLocaleString("pt-BR");
+      els.shares.value = cfg.sharesEmAlta;
+      document.getElementById("shares-val").textContent = (+cfg.sharesEmAlta).toLocaleString("pt-BR");
+      els.passo.value = cfg.passoEngajamento;
+      document.getElementById("passo-val").textContent = "+" + (+cfg.passoEngajamento).toLocaleString("pt-BR");
       els.denuncias.value = cfg.denunciasOrdem;
       document.getElementById("denuncias-val").textContent = cfg.denunciasOrdem;
       els.multa.value = cfg.valorMulta;
@@ -143,6 +154,8 @@
     }
 
     els.likes.addEventListener("input", () => { cfg.likesEmAlta = +els.likes.value; render(); save(); });
+    els.shares.addEventListener("input", () => { cfg.sharesEmAlta = +els.shares.value; render(); save(); });
+    els.passo.addEventListener("input", () => { cfg.passoEngajamento = +els.passo.value; render(); save(); });
     els.denuncias.addEventListener("input", () => { cfg.denunciasOrdem = +els.denuncias.value; render(); save(); });
     els.multa.addEventListener("input", () => { cfg.valorMulta = Math.max(0, +els.multa.value || 0); save(); });
     els.flip.addEventListener("input", () => { cfg.flipDur = +els.flip.value; render(); save(); });
