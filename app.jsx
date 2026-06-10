@@ -59,16 +59,6 @@ function useFlip() {
   return register;
 }
 
-function StageHint({ onClose }) {
-  return (
-    <div className="stage-hint">
-      <span className="hint-tag">dica de palco</span>
-      <span className="hint-text">Comece com o feed <b>vazio</b>. Abra <b>Inserir post</b> e publique uma sugestão — o algoritmo <b>decide na hora da publicação</b>. Depois clique em <b>curtir / compartilhar</b> (+{(window.DEFAULT_CONFIG.passoEngajamento || 1000).toLocaleString("pt-BR")} por clique) pra simular a viralização: passando do limiar, a própria plataforma impulsiona — porque engajamento.</span>
-      <button className="hint-x" onClick={onClose} aria-label="Fechar dica">✕</button>
-    </div>
-  );
-}
-
 function EmptyFeed({ onInsert, side }) {
   return (
     <div className="feed-empty">
@@ -88,7 +78,6 @@ function App() {
   const [cfg, setCfg] = useState(loadConfig);
   const [rules, setRules] = useState(loadRules);
   const [view, setView] = useState("user");           // user | both | algo
-  const [hint, setHint] = useState(true);
   const [drawer, setDrawer] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
   const [published, setPublished] = useState(() => new Set());
@@ -296,7 +285,6 @@ function App() {
     setPublished(new Set());
     setTotalMulta(0);
     setToasts([]);
-    setHint(true);
     try { localStorage.removeItem(STATE_KEY); } catch (e) {}
     pushToast({ kind: "info", icon: "↺", title: "Feed reiniciado", text: "Feed vazio, pronto pra começar do zero." });
   };
@@ -351,7 +339,6 @@ function App() {
         onInsert={openDrawer}
         onRules={() => setRulesOpen(true)}
       />
-      {view === "user" && hint && <StageHint onClose={() => setHint(false)} />}
       <Toasts toasts={toasts} onClose={removeToast} />
 
       <SuggestionDrawer
