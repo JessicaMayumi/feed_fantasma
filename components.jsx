@@ -56,6 +56,21 @@ const Ico = {
       <path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>
     </svg>
   ),
+  play: (
+    <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+      <path d="M7 4.5v15a1 1 0 0 0 1.5.87l12-7.5a1 1 0 0 0 0-1.74l-12-7.5A1 1 0 0 0 7 4.5z"/>
+    </svg>
+  ),
+  plus: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 5v14"/><path d="M5 12h14"/>
+    </svg>
+  ),
+  sliders: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>
+    </svg>
+  ),
   text: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M4 7V5h16v2"/><path d="M9 5v14"/><path d="M7 19h4"/><path d="M14 12v-1h7v1"/><path d="M17.5 11v8"/><path d="M16 19h3"/>
@@ -84,24 +99,25 @@ function fmt(n) {
 function brl(n) { return "R$ " + n.toLocaleString("pt-BR"); }
 
 /* ---------- PostCard ---------- */
-function PostCard({ post, cfg, onLike, onReport, onPlatform, onDelete, registerRef }) {
+function PostCard({ post, cfg, onLike, onShare, onReport, onPlatform, onDelete, registerRef }) {
   const [bump, setBump] = useState(false);
-  const emAlta = post.likes >= cfg.likesEmAlta && post.status === "normal" && !post.locked;
+  const [sbump, setSbump] = useState(false);
+  const bombando = post.status === "boost" && post.statusSource === "engagement";
   const klass = ["post"];
   if (post.locked) klass.push("locked");
   else if (post.status === "boost") klass.push("boosted");
   else if (post.status === "demote") klass.push("demoted");
   else if (post.status === "hide") klass.push("hidden");
+  if (post.processing) klass.push("processing");
 
-  const handleLike = () => {
-    if (!post.liked) { setBump(true); setTimeout(() => setBump(false), 420); }
-    onLike(post.id);
-  };
+  const handleLike = () => { setBump(true); setTimeout(() => setBump(false), 420); onLike(post.id); };
+  const handleShare = () => { setSbump(true); setTimeout(() => setSbump(false), 420); onShare(post.id); };
 
-  const ribbon = post.locked ? null : ({
-    boost: ["boost", "Impulsionado pela plataforma"],
-    demote: ["demote", "Rebaixado (shadowban) — alcance reduzido"],
-    hide: ["hide", "Escondido pela plataforma"]
+  const src = post.statusSource;
+  const ribbon = (post.locked || post.processing) ? null : ({
+    boost: ["boost", src === "manual" ? "Impulsionado pela plataforma" : src === "engagement" ? "Em alta · bombando de engajamento" : "Em alta"],
+    demote: ["demote", src === "manual" ? "Rebaixado (shadowban) — alcance reduzido" : "Menos relevante"],
+    hide: ["hide", src === "manual" ? "Escondido pela plataforma" : "Indisponível no seu feed"]
   })[post.status];
 
   const initial = post.name.trim()[0].toUpperCase();
@@ -110,6 +126,8 @@ function PostCard({ post, cfg, onLike, onReport, onPlatform, onDelete, registerR
 
   return (
     <article className={klass.join(" ")} ref={registerRef(post.id)}>
+      {post.processing && <div className="scanline"></div>}
+      {post.processing && <div className="proc-ribbon"><span className="proc-dot"></span>analisando conteúdo<span className="proc-dots"><i>.</i><i>.</i><i>.</i></span></div>}
       {ribbon && <div className={"status-ribbon " + ribbon[0]}>{ribbon[1]}</div>}
       {post.locked && <div className="status-ribbon lock"><span className="ri-ico">{Ico.scale}</span> Removido por ordem judicial</div>}
 
@@ -130,7 +148,7 @@ function PostCard({ post, cfg, onLike, onReport, onPlatform, onDelete, registerR
           {cfg.revealFlags && (
             <span className={"flag-tag " + (post.legal ? "legal" : "ilegal")}>{post.legal ? "legal" : "ilegal"}</span>
           )}
-          {emAlta && !cfg.revealFlags && <span className="hot-badge">em alta</span>}
+          {bombando && !cfg.revealFlags && <span className="hot-badge">bombando</span>}
           <button className="more-btn" title="Mais opções (demonstração)">{Ico.more}</button>
         </div>
       </div>
@@ -139,15 +157,16 @@ function PostCard({ post, cfg, onLike, onReport, onPlatform, onDelete, registerR
 
       <div className="caption">{post.text}</div>
 
-      {!post.locked && (
+      {!post.locked && !post.processing && (
         <>
           <div className="actions">
             <button className="act" title="Comentar (demonstração)">{Ico.comment}<span className="cnt">{fmt(replies)}</span></button>
-            <button className="act" title="Republicar (demonstração)">{Ico.repost}<span className="cnt">{fmt(reposts)}</span></button>
-            <button className={"act like" + (post.liked ? " liked" : "") + (bump ? " bump" : "")} onClick={handleLike} title="Curtir">
+            <button className={"act like" + (post.liked ? " liked" : "") + (bump ? " bump" : "")} onClick={handleLike} title={"Curtir (+" + fmt(cfg.passoEngajamento) + ")"}>
               {Ico.heart}<span className="cnt">{fmt(post.likes)}</span>
             </button>
-            <button className="act deco" title="Compartilhar (demonstração)">{Ico.share}</button>
+            <button className={"act share" + (post.shared ? " shared" : "") + (sbump ? " bump" : "")} onClick={handleShare} title={"Compartilhar (+" + fmt(cfg.passoEngajamento) + ")"}>
+              {Ico.share}<span className="cnt">{fmt(post.shares || 0)}</span>
+            </button>
             <button
               className={"act report" + (post.denuncias > 0 ? " armed" : "")}
               onClick={() => onReport(post.id)}
@@ -155,6 +174,13 @@ function PostCard({ post, cfg, onLike, onReport, onPlatform, onDelete, registerR
             >
               {Ico.flag}<span className="cnt">{post.denuncias > 0 ? `${post.denuncias}/${cfg.denunciasOrdem}` : "Denunciar"}</span>
             </button>
+          </div>
+
+          <div className="engage-line">
+            <span className="eng-nums"><b>{fmt(post.likes)}</b> curtidas · <b>{fmt(post.shares || 0)}</b> compart.</span>
+            {bombando
+              ? <span className="eng-boom">engajamento acima do limiar → impulsionado</span>
+              : <span className="eng-thresh">viraliza com {fmt(cfg.likesEmAlta)} curt. ou {fmt(cfg.sharesEmAlta)} compart.</span>}
           </div>
 
           {post.denuncias > 0 && (
@@ -188,8 +214,19 @@ function PostCard({ post, cfg, onLike, onReport, onPlatform, onDelete, registerR
   );
 }
 
+/* ---------- View toggle ---------- */
+function ViewToggle({ view, onView, narrow }) {
+  return (
+    <div className="viewtoggle" role="tablist">
+      <button className={view === "user" ? "on" : ""} onClick={() => onView("user")}>Usuário</button>
+      {!narrow && <button className={view === "both" ? "on" : ""} onClick={() => onView("both")}>Ambas</button>}
+      <button className={view === "algo" ? "on" : ""} onClick={() => onView("algo")}>Algoritmo</button>
+    </div>
+  );
+}
+
 /* ---------- TopBar ---------- */
-function TopBar({ counts, totalMulta, presentation, onTogglePresentation, onReset }) {
+function TopBar({ counts, totalMulta, presentation, onTogglePresentation, onReset, view, onView, onInsert, onRules }) {
   return (
     <header className="topbar">
       <div className="topbar-main">
@@ -198,6 +235,12 @@ function TopBar({ counts, totalMulta, presentation, onTogglePresentation, onRese
           <span className="word">Feed Fantasma</span>
         </a>
         <div className="top-actions">
+          <button className="tbtn run ready" onClick={onInsert} title="Abrir a biblioteca de sugestões e publicar ao vivo">
+            <span className="tbtn-ico">{Ico.plus}</span>Inserir post
+          </button>
+          <button className="tbtn" onClick={onRules} title="Editar as palavras vigiadas e re-rodar o algoritmo">
+            <span className="tbtn-ico">{Ico.sliders}</span>Regras
+          </button>
           <button
             className={"tbtn" + (presentation ? " on" : "")}
             onClick={onTogglePresentation}
@@ -215,6 +258,7 @@ function TopBar({ counts, totalMulta, presentation, onTogglePresentation, onRese
       </div>
       <div className="topbar-stats">
         <div className="statgroup">
+          <ViewToggle view={view} onView={onView} />
           <span className="stat"><span className="stat-dot v"></span><span className="stat-num">{counts.visiveis}</span><span className="stat-lbl">visíveis</span></span>
           <span className="stat"><span className="stat-dot h"></span><span className="stat-num">{counts.escondidos}</span><span className="stat-lbl">escondidos</span></span>
           <span className="stat"><span className="stat-dot d"></span><span className="stat-num">{counts.apagados}</span><span className="stat-lbl">apagados</span></span>
@@ -289,4 +333,107 @@ function Toasts({ toasts, onClose }) {
   );
 }
 
-Object.assign(window, { PostCard, TopBar, Sidebar, Toasts, fmt, brl });
+/* ---------- Suggestion Drawer (biblioteca de posts) ---------- */
+function SuggestionDrawer({ open, onClose, onPublishSeed, onPublishText, published }) {
+  const seeds = window.INITIAL_POSTS || [];
+  return (
+    <>
+      <div className={"drawer-scrim" + (open ? " show" : "")} onClick={onClose}></div>
+      <aside className={"drawer" + (open ? " open" : "")} aria-hidden={!open}>
+        <div className="drawer-head">
+          <div>
+            <div className="drawer-title">Inserir post</div>
+            <div className="drawer-sub">Publique ao vivo — o algoritmo decide na hora.</div>
+          </div>
+          <button className="drawer-x" onClick={onClose} aria-label="Fechar">✕</button>
+        </div>
+        <div className="drawer-body">
+          <Composer onPublish={onPublishText} />
+          <div className="drawer-listtag">Sugestões prontas</div>
+          <div className="drawer-list">
+            {seeds.map(s => {
+              const done = published.has(s.id);
+              return (
+                <div className={"sug" + (done ? " done" : "")} key={s.id}>
+                  <div className={"sug-av" + (s.suspect ? " suspect" : "")} style={{ background: s.avatarColor }}>{s.name.trim()[0].toUpperCase()}</div>
+                  <div className="sug-main">
+                    <div className="sug-name">{s.name} <span className="sug-handle">@{s.handle}</span></div>
+                    <div className="sug-text">{s.text}</div>
+                  </div>
+                  <button className="sug-pub" disabled={done} onClick={() => onPublishSeed(s.id)}>
+                    {done ? "Publicado" : "Publicar"}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </aside>
+    </>
+  );
+}
+
+/* ---------- Rules Drawer (palavras vigiadas, editável) ---------- */
+const ACAO_META = {
+  esconder:    { label: "esconder",    cls: "r-esconder" },
+  impulsionar: { label: "impulsionar", cls: "r-impulsionar" },
+  rebaixar:    { label: "rebaixar",    cls: "r-rebaixar" }
+};
+function RuleBlock({ rule, onAddWord, onRemoveWord }) {
+  const [val, setVal] = useState("");
+  const meta = ACAO_META[rule.acao] || {};
+  const add = () => { onAddWord(rule.id, val); setVal(""); };
+  return (
+    <div className={"rule " + meta.cls}>
+      <div className="rule-head">
+        <span className="rule-name">{rule.rotulo}</span>
+        <span className={"rule-acao " + meta.cls}>→ {meta.label}</span>
+      </div>
+      <div className="rule-words">
+        {rule.palavras.map((w, i) => (
+          <span key={i} className="word-chip">{w}<button onClick={() => onRemoveWord(rule.id, w)} aria-label={"Remover " + w}>✕</button></span>
+        ))}
+        {!rule.palavras.length && <span className="ac-muted" style={{ fontSize: ".8rem" }}>sem palavras</span>}
+      </div>
+      <div className="rule-add">
+        <input
+          value={val}
+          onChange={e => setVal(e.target.value)}
+          onKeyDown={e => { if (e.key === "Enter") add(); }}
+          placeholder="adicionar palavra…"
+        />
+        <button onClick={add} disabled={!val.trim()}>+ Adicionar</button>
+      </div>
+    </div>
+  );
+}
+function RulesDrawer({ open, onClose, rules, onAddWord, onRemoveWord, onRerun, onRestore, count }) {
+  return (
+    <>
+      <div className={"drawer-scrim" + (open ? " show" : "")} onClick={onClose}></div>
+      <aside className={"drawer rules-drawer" + (open ? " open" : "")} aria-hidden={!open}>
+        <div className="drawer-head">
+          <div>
+            <div className="drawer-title">Regras do algoritmo</div>
+            <div className="drawer-sub">Edite as palavras vigiadas e re-rode — os posts são reavaliados.</div>
+          </div>
+          <button className="drawer-x" onClick={onClose} aria-label="Fechar">✕</button>
+        </div>
+        <div className="drawer-body">
+          <div className="rules-note">O algoritmo casa estas palavras no texto (sem acento/maiúscula importar). Prioridade: <b>esconder</b> › <b>impulsionar</b> › <b>rebaixar</b>.</div>
+          {rules.map(r => (
+            <RuleBlock key={r.id} rule={r} onAddWord={onAddWord} onRemoveWord={onRemoveWord} />
+          ))}
+          <button className="rules-restore" onClick={onRestore}>Restaurar palavras padrão</button>
+        </div>
+        <div className="rules-foot">
+          <button className="rules-rerun" onClick={onRerun} disabled={count === 0}>
+            ↻ Re-rodar algoritmo{count > 0 ? ` (${count})` : ""}
+          </button>
+        </div>
+      </aside>
+    </>
+  );
+}
+
+Object.assign(window, { PostCard, TopBar, Sidebar, Toasts, ViewToggle, SuggestionDrawer, RulesDrawer, fmt, brl });
