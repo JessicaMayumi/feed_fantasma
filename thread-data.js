@@ -40,8 +40,8 @@ window.THREAD = [
   { type: "tweet", author: "Lawrence Lessig", handle: "lessig", label: "Professor · Harvard Law · autor de “Code”",
     initials: "LL", color: "#1a1a1a", avatar: "assets/lessig.png", verified: true,
     text: [
-      "\"No ciberespaço, precisamos entender como um outro tipo de código regula — como o software e o hardware que fazem o ciberespaço ser o que ele é também o regulam.\"",
-      "A arquitetura é a forma mais poderosa de regulação: a lei te pune *depois* do fato; o código te impede *antes*. — em *Code* (1999)"
+      "\"A menos que entendamos como o ciberespaço pode incorporar ou deslocar valores da nossa tradição constitucional, perderemos o controle sobre esses valores.\"",
+      "— *Code and Other Laws of Cyberspace* (2000)"
     ] },
   { type: "regulators" },
   { type: "tweet", author: "Dra. Ju Direito", handle: "Dra_Ju_Direito", label: "Advogada Constitucionalista",
