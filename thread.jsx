@@ -99,7 +99,7 @@ function TweetBlock({ b, fresh, delay }) {
         {b.threadNum && <span className="tw-thread">{b.threadNum}</span>}
       </div>
 
-      <div className="tw-body"><Paragraphs text={b.text} /></div>
+      {b.text && b.text.length > 0 && <div className="tw-body"><Paragraphs text={b.text} /></div>}
 
       {b.link && (
         <div className="tw-link">
@@ -110,6 +110,24 @@ function TweetBlock({ b, fresh, delay }) {
             <div className="tw-link-authors">{b.link.authors}</div>
           </div>
         </div>
+      )}
+
+      {b.news && (
+        <a className={"tw-news " + b.news.tone} href={"https://" + b.news.domain} target="_blank" rel="noopener noreferrer">
+          <div className="tw-news-masthead">
+            {b.news.logo
+              ? <img className="tw-news-logo" src={b.news.logo} alt={b.news.source} />
+              : <span className="tw-news-logo-fallback">{b.news.source[0]}</span>}
+            <div className="tw-news-pub">
+              <span className="tw-news-source">{b.news.source}</span>
+              <span className="tw-news-date">{b.news.date} · Notícia</span>
+            </div>
+            <span className={"tw-news-tag " + b.news.tone}>{b.news.tag}</span>
+          </div>
+          <div className="tw-news-headline">{b.news.headline}</div>
+          <div className="tw-news-summary">{b.news.summary}</div>
+          <div className="tw-news-foot"><span className="tw-news-domain">{b.news.domain}</span><span className="tw-news-more">Ler matéria →</span></div>
+        </a>
       )}
 
       {b.quote && (

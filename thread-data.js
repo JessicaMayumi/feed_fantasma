@@ -91,10 +91,25 @@ window.THREAD = [
   /* ---------- Slide 6 — A Virada de 2025 ---------- */
   { type: "section", hashtags: ["STF", "Art19"], title: "A Responsabilidade dos Provedores · A Virada de 2025", icon: "gavel" },
   { type: "tweet", author: "Direito Digital BR", handle: "Direito_Digital_BR", label: "Atualização Jurídica",
-    initials: "DD", color: "#1d9bf0", verified: true, threadNum: "1/3",
+    initials: "DD", color: "#1d9bf0", verified: true,
+    text: [],
+    news: { tag: "Antes da mudança", tone: "amber", source: "SEAAC Campinas e Região", date: "28 nov. 2024",
+      logo: "assets/seaac.png",
+      headline: "Como professora ofendida levou o Google ao STF e pode mudar as redes no Brasil",
+      summary: "Comunidade “Eu odeio a Aliandra” no Orkut: sem ordem judicial, a plataforma se blindava no art. 19 do Marco Civil. O caso virou o leading case do Tema 987.",
+      domain: "seaaccampinas.org.br" } },
+  { type: "tweet", author: "Direito Digital BR", handle: "Direito_Digital_BR", label: "Atualização Jurídica",
+    initials: "DD", color: "#1d9bf0", verified: true, threadNum: "1/3", reply: true,
     text: [
       "🚨 **ATENÇÃO: a regra do jogo mudou no Brasil!** O STF julgou o Artigo 19 do Marco Civil da Internet (Temas 987 e 533) em Junho de 2025 e declarou o dispositivo parcialmente inconstitucional por 8 votos a 3. A regra antiga caiu! Segue o fio. 👇"
     ] },
+  { type: "tweet", author: "Direito Digital BR", handle: "Direito_Digital_BR", initials: "DD", color: "#1d9bf0", verified: true, reply: true,
+    text: [],
+    news: { tag: "Depois da mudança", tone: "green", source: "TJDFT · Tribunal de Justiça do DF", date: "14 ago. 2025",
+      logo: "assets/tjdft.png",
+      headline: "Justiça reconhece responsabilidade do Facebook em invasão de perfil",
+      summary: "6ª Vara Cível de Brasília condenou a plataforma a indenizar uma usuária: responde pela falha de segurança e pela demora em recuperar a conta usada para golpes.",
+      domain: "tjdft.jus.br" } },
   { type: "tweet", author: "Direito Digital BR", handle: "Direito_Digital_BR", initials: "DD", color: "#1d9bf0", verified: true, threadNum: "2/3", reply: true,
     text: [
       "**Como era:** o provedor só respondia civilmente por danos de conteúdo de terceiros se descumprisse uma ordem judicial específica de remoção.",
