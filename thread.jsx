@@ -47,14 +47,19 @@ function parseInline(text, keyPrefix) {
 function Paragraphs({ text }) {
   return text.map((p, i) => <p key={i}>{parseInline(p, "p" + i + "-")}</p>);
 }
-function Avatar({ initials, color, cls }) {
+function Avatar({ initials, color, cls, avatar }) {
+  if (avatar) return <div className={cls + " has-img"} style={{ backgroundImage: `url("${avatar}")` }} aria-label={initials}></div>;
   return <div className={cls} style={{ background: color }}>{initials}</div>;
 }
 
 /* ---------- blocos ---------- */
-function SectionBlock({ b, first }) {
+/* helpers de revelação escalonada: só anima quando o slide é o recém-publicado (fresh) */
+function rc(base, fresh) { return fresh ? base + " reveal" : base; }
+function rs(fresh, delay) { return fresh ? { animationDelay: (delay * 0.13).toFixed(2) + "s" } : undefined; }
+
+function SectionBlock({ b, first, fresh, delay }) {
   return (
-    <div className={"x-section reveal" + (first ? " first" : "")}>
+    <div className={rc("x-section x-section-anim" + (first ? " first" : ""), fresh)} style={rs(fresh, delay)}>
       {b.by && <div className="x-section-by">{b.by}</div>}
       <div className="x-section-head">
         <div className="x-section-ic">{I[b.icon] || I.share}</div>
@@ -70,16 +75,16 @@ function SectionBlock({ b, first }) {
 function Stat({ cls, icon, n }) {
   return <span className={"tw-stat " + cls}>{icon}{n && <span>{n}</span>}</span>;
 }
-function TweetBlock({ b }) {
-  const cls = ["tw", "reveal"];
+function TweetBlock({ b, fresh, delay }) {
+  const cls = ["tw"];
   if (b.reply) cls.push("reply");
   if (b.viral) cls.push("viral");
   if (b.accent) cls.push("accent-" + b.accent);
   const s = b.stats;
   return (
-    <article className={cls.join(" ")}>
+    <article className={rc(cls.join(" "), fresh)} style={rs(fresh, delay)}>
       <div className="tw-head">
-        <Avatar cls="tw-av" initials={b.initials} color={b.color} />
+        <Avatar cls="tw-av" initials={b.initials} color={b.color} avatar={b.avatar} />
         <div className="tw-id">
           <div className="tw-name">
             {b.author}
@@ -131,15 +136,15 @@ function TweetBlock({ b }) {
   );
 }
 
-function RegulatorsBlock() {
+function RegulatorsBlock({ fresh, delay }) {
   const R = window.REGULATORS;
   return (
-    <div className="reg reveal">
+    <div className={rc("reg", fresh)} style={rs(fresh, delay)}>
       <div className="reg-title">Os 4 reguladores de Lessig (1999)</div>
       <div className="reg-grid">
         <div className="reg-center">{R.center}</div>
-        {R.forces.map(f => (
-          <div key={f.key} className={"reg-cell " + f.tone + (f.strong ? " lead" : "")}>
+        {R.forces.map((f, i) => (
+          <div key={f.key} className={"reg-cell " + (fresh ? "reg-cell-anim " : "") + f.tone + (f.strong ? " lead" : "")} style={fresh ? { animationDelay: (0.3 + i * 0.13) + "s" } : undefined}>
             <div className="reg-k"><span>{f.icon}</span>{f.key}{f.strong && <span className="reg-badge">mais forte</span>}</div>
             <div className="reg-d">{f.desc}</div>
           </div>
@@ -150,14 +155,14 @@ function RegulatorsBlock() {
   );
 }
 
-function FlowchartBlock() {
+function FlowchartBlock({ fresh, delay }) {
   const F = window.FLOWCHART;
   return (
-    <div className="flow reveal">
+    <div className={rc("flow", fresh)} style={rs(fresh, delay)}>
       <div className="flow-root">{F.root}</div>
       <div className="flow-split">
         {F.branches.map((br, i) => (
-          <div key={i} className={"flow-branch " + br.tone}>
+          <div key={i} className={"flow-branch " + (fresh ? "flow-branch-anim " : "") + br.tone} style={fresh ? { animationDelay: (0.3 + i * 0.18) + "s" } : undefined}>
             <div className="flow-arrow">↓</div>
             <div className="flow-step flow-cond"><span className={"flow-cond " + br.tone}>{br.cond}</span></div>
             <div className="flow-arrow">↓</div>
@@ -172,9 +177,9 @@ function FlowchartBlock() {
   );
 }
 
-function HighlightsBlock({ b }) {
+function HighlightsBlock({ b, fresh, delay }) {
   return (
-    <div className="hl-row reveal">
+    <div className={rc("hl-row", fresh)} style={rs(fresh, delay)}>
       <div className="hl-title">{b.title}</div>
       {b.items.map((it, i) => (
         <div key={i} className={"hl-card " + it.tone}>
@@ -186,9 +191,9 @@ function HighlightsBlock({ b }) {
   );
 }
 
-function ReferencesBlock({ b }) {
+function ReferencesBlock({ b, fresh, delay }) {
   return (
-    <article className="refs reveal">
+    <article className={rc("refs", fresh)} style={rs(fresh, delay)}>
       <div className="tw-head">
         <Avatar cls="tw-av" initials={b.initials} color={b.color} />
         <div className="tw-id">
@@ -208,61 +213,59 @@ function ReferencesBlock({ b }) {
   );
 }
 
-function renderBlock(b, idx, firstSection) {
+/* dispatcher de bloco com revelação escalonada */
+function RevealBlock({ b, fresh, delay }) {
   switch (b.type) {
-    case "section": return <SectionBlock key={idx} b={b} first={firstSection} />;
-    case "tweet": return <TweetBlock key={idx} b={b} />;
-    case "regulators": return <RegulatorsBlock key={idx} />;
-    case "flowchart": return <FlowchartBlock key={idx} />;
-    case "highlights": return <HighlightsBlock key={idx} b={b} />;
-    case "references": return <ReferencesBlock key={idx} b={b} />;
+    case "tweet": return <TweetBlock b={b} fresh={fresh} delay={delay} />;
+    case "regulators": return <RegulatorsBlock fresh={fresh} delay={delay} />;
+    case "flowchart": return <FlowchartBlock fresh={fresh} delay={delay} />;
+    case "highlights": return <HighlightsBlock b={b} fresh={fresh} delay={delay} />;
+    case "references": return <ReferencesBlock b={b} fresh={fresh} delay={delay} />;
     default: return null;
   }
 }
 
-/* descrição do próximo bloco pra doca */
-function nextLabel(b) {
-  if (!b) return null;
-  if (b.type === "section") return { who: "Abrir tópico", h: "#" + b.hashtags[0], av: "#", color: "#1d9bf0", action: "Abrir tópico" };
-  if (b.type === "tweet") return { who: b.author, h: "@" + b.handle, av: b.initials, color: b.color, action: b.reply ? "Publicar resposta" : "Publicar" };
-  if (b.type === "regulators") return { who: "Infográfico", h: "4 reguladores de Lessig", av: "📊", color: "#1d9bf0", action: "Mostrar" };
-  if (b.type === "flowchart") return { who: "Fluxograma", h: "decisão do STF 2025", av: "⚖", color: "#1d9bf0", action: "Mostrar" };
-  if (b.type === "highlights") return { who: "Destaques", h: b.title, av: "✦", color: "#1d9bf0", action: "Mostrar" };
-  if (b.type === "references") return { who: b.author, h: "referências & nota", av: b.initials, color: b.color, action: "Publicar" };
-  return { who: "Próximo", h: "", av: "→", color: "#1d9bf0", action: "Publicar" };
+function buildSlides(T) {
+  const slides = [];
+  let cur = null;
+  T.forEach(b => {
+    if (b.type === "section") { cur = { section: b, blocks: [] }; slides.push(cur); }
+    else { if (!cur) { cur = { section: null, blocks: [] }; slides.push(cur); } cur.blocks.push(b); }
+  });
+  return slides;
 }
 
 /* ---------- App ---------- */
 function App() {
   const T = window.THREAD;
-  const [n, setN] = useState(() => {
+  const SLIDES = React.useMemo(() => buildSlides(T), [T]);
+  const [s, setS] = useState(() => {
     const v = parseInt(localStorage.getItem(RKEY) || "0", 10);
-    return isNaN(v) ? 0 : Math.min(v, T.length);
+    return isNaN(v) ? 0 : Math.min(v, SLIDES.length);
   });
   const feedRef = useRef(null);
+  const lastSlideRef = useRef(null);
 
-  useEffect(() => { try { localStorage.setItem(RKEY, String(n)); } catch (e) {} }, [n]);
+  useEffect(() => { try { localStorage.setItem(RKEY, String(s)); } catch (e) {} }, [s]);
 
   const scrollToNew = useCallback(() => {
     requestAnimationFrame(() => {
-      const feed = feedRef.current;
-      if (!feed) return;
-      const last = feed.lastElementChild;
-      if (!last) return;
-      const rect = last.getBoundingClientRect();
-      const top = window.scrollY + rect.top - 120;
+      const el = lastSlideRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const top = window.scrollY + rect.top - 96;
       window.scrollTo({ top, behavior: "smooth" });
     });
   }, []);
 
   const publish = useCallback(() => {
-    setN(c => Math.min(c + 1, T.length));
-  }, [T.length]);
+    setS(c => Math.min(c + 1, SLIDES.length));
+  }, [SLIDES.length]);
 
-  useEffect(() => { if (n > 0) scrollToNew(); }, [n, scrollToNew]);
+  useEffect(() => { if (s > 0) scrollToNew(); }, [s, scrollToNew]);
 
-  const back = useCallback(() => setN(c => Math.max(c - 1, 0)), []);
-  const reset = useCallback(() => { setN(0); window.scrollTo({ top: 0, behavior: "smooth" }); }, []);
+  const back = useCallback(() => setS(c => Math.max(c - 1, 0)), []);
+  const reset = useCallback(() => { setS(0); window.scrollTo({ top: 0, behavior: "smooth" }); }, []);
 
   /* teclado */
   useEffect(() => {
@@ -276,14 +279,11 @@ function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, [publish, back, reset]);
 
-  /* cabeçalho reflete a seção atual revelada */
-  let curSection = null;
-  for (let i = 0; i < n; i++) if (T[i].type === "section") curSection = T[i];
-
-  const shown = T.slice(0, n);
-  let firstSectionSeen = false;
-  const done = n >= T.length;
-  const nb = nextLabel(T[n]);
+  const shownSlides = SLIDES.slice(0, s);
+  const curSection = s > 0 ? (SLIDES[s - 1].section) : null;
+  const done = s >= SLIDES.length;
+  const nextSlide = SLIDES[s];
+  const nextSec = nextSlide ? nextSlide.section : null;
 
   return (
     <>
@@ -299,40 +299,47 @@ function App() {
       </header>
 
       <main className="x-feed" ref={feedRef}>
-        {n === 0 && (
+        {s === 0 && (
           <div className="x-empty">
             <h1>A thread ainda não foi publicada</h1>
-            <p>Clique em <b>Publicar</b> para postar cada tweet ao vivo — a turma acompanha a thread sendo escrita, aos poucos.</p>
+            <p>Clique em <b>Publicar</b> para postar cada slide ao vivo — o título e os textos entram juntos, com a turma acompanhando a thread sendo escrita.</p>
           </div>
         )}
-        {shown.map((b, i) => {
-          const isFirstSection = b.type === "section" && !firstSectionSeen;
-          if (isFirstSection) firstSectionSeen = true;
-          return renderBlock(b, i, isFirstSection);
+        {shownSlides.map((sl, si) => {
+          const isLast = si === shownSlides.length - 1;
+          let local = 0;
+          return (
+            <div className="x-slide" key={si} ref={isLast ? lastSlideRef : null}>
+              {sl.section && <SectionBlock b={sl.section} first={si === 0} delay={local++} fresh={isLast} />}
+              {sl.blocks.map((b, bi) => (
+                <RevealBlock key={bi} b={b} delay={local++} fresh={isLast} />
+              ))}
+            </div>
+          );
         })}
       </main>
 
       <div className="dock">
         <div className="dock-inner">
-          {!done && (
-            <div className={"dock-av typing"} style={{ background: nb.color }}>{nb.av}</div>
+          {!done && nextSec && (
+            <div className="dock-av typing" style={{ background: "#1d9bf0" }}>{I[nextSec.icon] ? <span className="dock-av-ic">{I[nextSec.icon]}</span> : "→"}</div>
           )}
           <div className="dock-mid">
             {done ? (
               <>
                 <div className="dock-who">Thread completa 🎉</div>
-                <div className="dock-next">Todos os {T.length} blocos publicados</div>
+                <div className="dock-next">{SLIDES.length} slides publicados</div>
               </>
             ) : (
               <>
-                <div className="dock-next">{nb.action} · próximo</div>
-                <div className="dock-who">{nb.who} <span className="h">{nb.h}</span></div>
+                <div className="dock-next">Próximo · #{nextSec ? nextSec.hashtags[0] : ""}</div>
+                <div className="dock-who">{nextSec ? nextSec.title : "Próximo"}</div>
               </>
             )}
-            <div className="dock-bar"><i style={{ width: (n / T.length * 100) + "%" }}></i></div>
+            <div className="dock-bar"><i style={{ width: (s / SLIDES.length * 100) + "%" }}></i></div>
           </div>
-          <span className="dock-count">{n}/{T.length}</span>
-          {n > 0 && <button className="dock-reset" onClick={reset} title="Reiniciar a thread (Home)">{I.reset}</button>}
+          <span className="dock-count">{s}/{SLIDES.length}</span>
+          {s > 0 && <button className="dock-reset" onClick={reset} title="Reiniciar a thread (Home)">{I.reset}</button>}
           <button className={"dock-btn" + (done ? " done" : "")} onClick={done ? reset : publish}>
             {done ? <>{I.reset} Recomeçar</> : <>{I.send} Publicar</>}
           </button>

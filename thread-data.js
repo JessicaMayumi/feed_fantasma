@@ -37,10 +37,11 @@ window.THREAD = [
 
   /* ---------- Slide 3 — Os Quatro Reguladores ---------- */
   { type: "section", hashtags: ["TeoriaDeLessig"], title: "Os Quatro Reguladores", icon: "poll" },
-  { type: "tweet", author: "Dev Pragmático", handle: "Dev_Pragmatico", label: "Programador Cético",
-    initials: "DP", color: "#f59e0b", emoji: "💻",
+  { type: "tweet", author: "Lawrence Lessig", handle: "lessig", label: "Professor · Harvard Law · autor de “Code”",
+    initials: "LL", color: "#1a1a1a", avatar: "assets/lessig.png", verified: true,
     text: [
-      "A galera do Direito pira, mas o Lessig matou a pau aqui. No ciberespaço, a arquitetura (o código) é a força mais poderosa porque ela é **autoexecutável**. A lei te pune *depois* do fato. O código te impede *antes*."
+      "\"No ciberespaço, precisamos entender como um outro tipo de código regula — como o software e o hardware que fazem o ciberespaço ser o que ele é também o regulam.\"",
+      "A arquitetura é a forma mais poderosa de regulação: a lei te pune *depois* do fato; o código te impede *antes*. — em *Code* (1999)"
     ] },
   { type: "regulators" },
   { type: "tweet", author: "Dra. Ju Direito", handle: "Dra_Ju_Direito", label: "Advogada Constitucionalista",
@@ -56,7 +57,7 @@ window.THREAD = [
   { type: "tweet", author: "Zeca Memes", handle: "Zeca_Memes", label: "Shitposter",
     initials: "ZM", color: "#ec4899", emoji: "😹", reply: true,
     text: [
-      "\"A lei pune depois, o código impede antes\" → minha conta tomando shadowban do nada por postar o meme do gordo dançando sem eu violar regra nenhuma kkkkkkk rindo pra não chorar."
+      "\"A lei pune depois, o código impede antes\" → minha conta tomando shadowban do nada por postar o meme do gatinho confuso sem eu violar regra nenhuma kkkkkkk rindo pra não chorar."
     ] },
 
   /* ---------- Slide 4 — Arquitetura e Neutralidade ---------- */
