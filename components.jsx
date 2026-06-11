@@ -3,6 +3,11 @@ const { useState, useEffect, useRef, useLayoutEffect, useMemo } = React;
 
 /* ---------- ícones (outline, traço fino) ---------- */
 const Ico = {
+  x: (
+    <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+    </svg>
+  ),
   ghost: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
       <path d="M5 20V10a7 7 0 0 1 14 0v10l-2.3-1.6L14.4 20 12 18.4 9.6 20 7.3 18.4 5 20z"/>
@@ -241,13 +246,13 @@ function TopBar({ counts, totalMulta, presentation, onTogglePresentation, onRese
           <button className="tbtn" onClick={onRules} title="Editar as palavras vigiadas e re-rodar o algoritmo">
             <span className="tbtn-ico">{Ico.sliders}</span>Regras
           </button>
-          <button
-            className={"tbtn" + (presentation ? " on" : "")}
-            onClick={onTogglePresentation}
-            title="Modo apresentação — texto maior para projeção"
+          <a
+            className="tbtn present"
+            href="Code is Law no X.html"
+            title="Abrir a apresentação no estilo X — thread publicada aos poucos"
           >
-            <span className="tbtn-ico">{Ico.text}</span>{presentation ? "Texto grande" : "Apresentar"}
-          </button>
+            <span className="tbtn-ico">{Ico.x}</span>Apresentar no X
+          </a>
           <a className="tbtn" href="Ajustes.html" title="Ajustes da demonstração">
             <span className="tbtn-ico">{Ico.gear}</span>Ajustes
           </a>
