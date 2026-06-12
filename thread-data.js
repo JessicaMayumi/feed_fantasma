@@ -40,7 +40,7 @@ window.THREAD = [
   { type: "tweet", author: "Lawrence Lessig", handle: "lessig", label: "Professor · Harvard Law · autor de “Code”",
     initials: "LL", color: "#1a1a1a", avatar: "assets/lessig.png", verified: true,
     text: [
-      "\"A menos que entendamos como o ciberespaço pode incorporar ou deslocar valores da nossa tradição constitucional, perderemos o controle sobre esses valores.\"",
+      "\"A arquitetura do ciberespaço incorpora ou desloca valores constitucionais, e o código — não a lei — passa a regulá-los.\"",
       "— *Code and Other Laws of Cyberspace* (1999)"
     ] },
   { type: "regulators" },
