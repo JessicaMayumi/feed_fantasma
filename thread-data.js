@@ -41,7 +41,7 @@ window.THREAD = [
     initials: "LL", color: "#1a1a1a", avatar: "assets/lessig.png", verified: true,
     text: [
       "\"A menos que entendamos como o ciberespaço pode incorporar ou deslocar valores da nossa tradição constitucional, perderemos o controle sobre esses valores.\"",
-      "— *Code and Other Laws of Cyberspace* (2000)"
+      "— *Code and Other Laws of Cyberspace* (1999)"
     ] },
   { type: "regulators" },
   { type: "tweet", author: "Dra. Ju Direito", handle: "Dra_Ju_Direito", label: "Advogada Constitucionalista",
